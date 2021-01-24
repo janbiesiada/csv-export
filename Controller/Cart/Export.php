@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace JanBiesiada\CsvExport\Controller\Cart;
 
 use Exception;
+use JanBiesiada\CsvExport\Model\Config;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\HttpGetActionInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\Response\Http\FileFactory;
 use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem;
@@ -21,7 +22,6 @@ class Export implements HttpGetActionInterface
     private const EXPORT_PATH = 'export';
     private const TEMP_FILE_NAME = 'export/custom_%s.csv';
     private const CART_CSV_FILE_NAME = 'cart.csv';
-    const CART_TO_CSV_EXPORT_GENERAL_ENABLED_PATH = 'cart_to_csv_export/general/enabled';
     /**
      * @var FileFactory
      */
@@ -39,11 +39,11 @@ class Export implements HttpGetActionInterface
      */
     private $filePath;
     /**
-     * @var ScopeConfigInterface
+     * @var Config
      */
     private $config;
     /**
-     * @var \Magento\Framework\Controller\Result\RedirectFactory
+     * @var RedirectFactory
      */
     private $redirectFactory;
 
@@ -51,8 +51,8 @@ class Export implements HttpGetActionInterface
         FileFactory $fileFactory,
         Filesystem $filesystem,
         Session $checkoutSession,
-        ScopeConfigInterface $config,
-        \Magento\Framework\Controller\Result\RedirectFactory $redirectFactory
+        Config $config,
+        RedirectFactory $redirectFactory
     ) {
         $this->fileFactory = $fileFactory;
         $this->filesystem = $filesystem;
@@ -70,7 +70,7 @@ class Export implements HttpGetActionInterface
      */
     public function execute()
     {
-        if (!$this->config->getValue(self::CART_TO_CSV_EXPORT_GENERAL_ENABLED_PATH)) {
+        if (!$this->config->isCsvExportEnabled()) {
             return $this->redirectFactory->create()->setPath('/');
         }
         $directory = $this->filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
@@ -89,6 +89,17 @@ class Export implements HttpGetActionInterface
             $this->getContent(),
             DirectoryList::VAR_DIR
         );
+    }
+
+    /**
+     * @return string
+     */
+    private function getFilePath(): string
+    {
+        if (!$this->filePath) {
+            $this->filePath = sprintf(self::TEMP_FILE_NAME, date('m_d_Y_H_i_s'));
+        }
+        return $this->filePath;
     }
 
     /**
@@ -125,16 +136,5 @@ class Export implements HttpGetActionInterface
             'value' => $this->getFilePath(),
             'rm' => '1'
         ];
-    }
-
-    /**
-     * @return string
-     */
-    private function getFilePath(): string
-    {
-        if (!$this->filePath) {
-            $this->filePath = sprintf(self::TEMP_FILE_NAME, date('m_d_Y_H_i_s'));
-        }
-        return $this->filePath;
     }
 }
