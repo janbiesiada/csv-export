@@ -1,0 +1,14 @@
+<?php
+/**
+ * @var \JanBiesiada\CsvExport\Block\MiniCart\Button $block
+ * @var \Magento\Framework\Escaper $escaper
+*/
+?>
+<div class="csv-cart-export-button-container" style="margin-top: 10px;">
+    <button class="action primary"
+            data-mage-init='{"redirectUrl":{"url":"<?= $escaper->escapeUrl($block->getUrl('csv/cart/export')) ?>"}}'
+            type="button"
+            title="<?= $escaper->escapeHtmlAttr(__('Export Cart To Csv')) ?>">
+        <span><?= $escaper->escapeHtml(__('Export Cart To Csv')) ?></span>
+    </button>
+</div>
