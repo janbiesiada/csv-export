@@ -8,7 +8,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class Config
 {
-    private const CART_TO_CSV_EXPORT_GENERAL_ENABLED_PATH = 'cart_to_csv_export/general/enabled';
+    public const CART_TO_CSV_EXPORT_GENERAL_ENABLED_PATH = 'cart_to_csv_export/general/enabled';
     /**
      * @var ScopeConfigInterface
      */
@@ -20,6 +20,9 @@ class Config
         $this->config = $config;
     }
 
+    /**
+     * @return bool
+     */
     public function isCsvExportEnabled(): bool
     {
         return $this->config->getValue(self::CART_TO_CSV_EXPORT_GENERAL_ENABLED_PATH) ? true : false;
